@@ -1,0 +1,95 @@
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: dynamic-plugins-rhdh
+data:
+  dynamic-plugins.yaml: |
+    includes:
+      - dynamic-plugins.default.yaml
+    plugins:
+      # Kubernetes 
+      - package: './dynamic-plugins/dist/backstage-plugin-kubernetes-backend-dynamic'
+        disabled: false
+        pluginConfig:
+          kubernetes:
+            customResources:
+              - group: 'tekton.dev'
+                apiVersion: 'v1beta1'
+                plural: 'pipelines'
+              - group: 'tekton.dev'
+                apiVersion: 'v1beta1'
+                plural: 'pipelineruns'
+              - group: 'tekton.dev'
+                apiVersion: 'v1beta1'
+                plural: 'taskruns'
+              - group: 'route.openshift.io'
+                apiVersion: 'v1'
+                plural: 'routes'
+            serviceLocatorMethod:
+              type: 'multiTenant'
+            clusterLocatorMethods:
+              - type: 'config'
+                clusters:
+                  - name: ${K8S_CLUSTER_NAME}
+                    url: ${K8S_CLUSTER_URL}
+                    authProvider: 'serviceAccount'
+                    skipTLSVerify: true
+                    serviceAccountToken: ${K8S_CLUSTER_TOKEN}
+      - package: './dynamic-plugins/dist/backstage-plugin-kubernetes'
+        disabled: false
+        pluginConfig:
+          dynamicPlugins:
+            frontend:
+              backstage.plugin-kubernetes:
+                mountPoints:
+                  - mountPoint: entity.page.kubernetes/cards
+                    importName: EntityKubernetesContent
+                    config:
+                      layout:
+                        gridColumn: "1 / -1"
+                      if:
+                        anyOf:
+                          - hasAnnotation: backstage.io/kubernetes-id
+                          - hasAnnotation: backstage.io/kubernetes-namespace
+      - package: ./dynamic-plugins/dist/janus-idp-backstage-plugin-topology
+        disabled: false
+        pluginConfig:
+          dynamicPlugins:
+            frontend:
+              janus-idp.backstage-plugin-topology:
+                mountPoints:
+                  - mountPoint: entity.page.topology/cards
+                    importName: TopologyPage
+                    config:
+                      layout:
+                        gridColumn: "1 / -1"
+                        height: 75vh
+                      if:
+                        anyOf:
+                          - hasAnnotation: backstage.io/kubernetes-id
+                          - hasAnnotation: backstage.io/kubernetes-namespace
+      # Group: Jenkins
+      - package: ./dynamic-plugins/dist/backstage-plugin-jenkins-backend-dynamic
+        disabled: false
+        pluginConfig:
+          jenkins:
+            instances:
+              - name: default
+                baseUrl: ${JENKINS_URL}
+                username: ${JENKINS_USERNAME}
+                apiKey: ${JENKINS_TOKEN}
+      - package: ./dynamic-plugins/dist/backstage-plugin-jenkins
+        disabled: false
+        pluginConfig:
+          dynamicPlugins:
+            frontend:
+              backstage.plugin-jenkins:
+                mountPoints:
+                  - mountPoint: entity.page.ci/cards
+                    importName: EntityJenkinsContent
+                    config:
+                      layout:
+                        gridColumn: "1 / -1"
+                      if:
+                        allOf:
+                          - isJenkinsAvailable

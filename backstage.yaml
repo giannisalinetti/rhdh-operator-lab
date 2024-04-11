@@ -1,0 +1,39 @@
+kind: Backstage
+apiVersion: rhdh.redhat.com/v1alpha1
+metadata:
+  name: backstage
+  namespace: developer-hub
+spec:
+  application:
+    appConfig:
+      mountPath: /opt/app-root/src
+      configMaps:
+        - name: app-config-rhdh
+    dynamicPluginsConfigMapName: dynamic-plugins-rhdh
+    extraEnvs:
+      envs:
+        - name: 'GITHUB_ORG'
+          value: '<CHANGEME>'
+        - name: 'GITHUB_APP_CLIENT_ID'
+          value: '<CHANGEME>'
+        - name: 'GITHUB_APP_CLIENT_SECRET'
+          value: '<CHANGEME>'
+        - name: 'JENKINS_URL'
+          value: '<CHANGEME>'
+        - name: 'JENKINS_USERNAME'
+          value: 'admin'
+        - name: 'JENKINS_TOKEN'
+          value: '<CHANGEME>'
+        - name: 'K8S_CLUSTER_NAME'
+          value: '<CHANGEME>'
+        - name: 'K8S_CLUSTER_URL'
+          value: 'https://api.cluster-lm5f4.dynamic.redhatworkshops.io:6443'
+        - name: 'K8S_CLUSTER_TOKEN'
+          value: '<CHANGEME>'
+    extraFiles:
+      mountPath: /opt-/app-root/src
+    replicas: 1
+    route:
+      enabled: true
+  database:
+    enableLocalDb: true

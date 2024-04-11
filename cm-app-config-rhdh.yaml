@@ -1,0 +1,26 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: 'app-config-rhdh'
+  namespace: developer-hub
+data:
+  "app-config-rhdh.yaml": |
+    app:
+      title: Red Hat Developer Hub
+      baseUrl: https://backstage-backstage-developer-hub.apps.cluster-lm5f4.dynamic.redhatworkshops.io
+    backend:
+      auth:
+        keys:
+          - secret: "${BACKEND_SECRET}"
+      baseUrl: https://backstage-backstage-developer-hub.apps.cluster-lm5f4.dynamic.redhatworkshops.io
+      cors:
+        origin: https://backstage-backstage-developer-hub.apps.cluster-lm5f4.dynamic.redhatworkshops.io
+    auth:
+      environment: development
+      providers:
+        github:
+          development:
+            clientId: "${GITHUB_APP_CLIENT_ID}"
+            clientSecret: "${GITHUB_APP_CLIENT_SECRET}"
+immutable: false
+
